@@ -15,6 +15,12 @@ from src.portfolio.portfolio import (
     get_default_weights,
 )
 
+from src.risk.volatility import (
+    calculate_annualized_rolling_volatility,
+    calculate_annualized_volatility,
+    calculate_daily_volatility,
+)
+
 def main():
 
     tickers = get_default_tickers()
@@ -51,6 +57,20 @@ def main():
 
     print("\nPortfolio returns:")
     print(portfolio_returns.head())
+
+    daily_volatility = calculate_daily_volatility(portfolio_returns)
+    annualized_volatility = calculate_annualized_volatility(portfolio_returns)
+    rolling_annualized_volatility = calculate_annualized_rolling_volatility(portfolio_returns)
+
+    print("\nPortfolio volatility:")
+    print(f"- Daily volatility: {daily_volatility:.2%}")
+    print(f"- Annualized volatility: {annualized_volatility:.2%}")
+
+    print("\nRolling annualized volatility:")
+    print(rolling_annualized_volatility.dropna().head().map(lambda x: f"{x:.2%}"))
+
+    print("\nRolling annualized volatility (last 5):")
+    print(rolling_annualized_volatility.dropna().tail().map(lambda x: f"{x:.2%}"))
 
 if __name__ == "__main__":
     main()
