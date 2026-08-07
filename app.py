@@ -21,6 +21,19 @@ from src.risk.volatility import (
     calculate_daily_volatility,
 )
 
+from src.risk.var import (
+    calculate_historical_var_1d
+)
+
+from src.risk.expected_shortfall import (
+    calculate_historical_expected_shortfall_1d,
+)
+
+from src.risk.drawdown import (
+    calculate_drawdown,
+    calculate_maximum_drawdown,
+)
+
 def main():
 
     tickers = get_default_tickers()
@@ -62,6 +75,21 @@ def main():
     annualized_volatility = calculate_annualized_volatility(portfolio_returns)
     rolling_annualized_volatility = calculate_annualized_rolling_volatility(portfolio_returns)
 
+    historical_var_95_1d = calculate_historical_var_1d(portfolio_returns)
+    historical_var_99_1d = calculate_historical_var_1d(
+        portfolio_returns,
+        confidence_level=0.99,
+    )
+
+    historical_es_95_1d = calculate_historical_expected_shortfall_1d(portfolio_returns)
+    historical_es_99_1d = calculate_historical_expected_shortfall_1d(
+        portfolio_returns,
+        confidence_level=0.99,
+    )
+
+    drawdown = calculate_drawdown(portfolio_returns)
+    maximum_drawdown = calculate_maximum_drawdown(portfolio_returns)
+
     print("\nPortfolio volatility:")
     print(f"- Daily volatility: {daily_volatility:.2%}")
     print(f"- Annualized volatility: {annualized_volatility:.2%}")
@@ -71,6 +99,25 @@ def main():
 
     print("\nRolling annualized volatility (last 5):")
     print(rolling_annualized_volatility.dropna().tail().map(lambda x: f"{x:.2%}"))
+
+    print("\nHistorical Value at Risk:")
+    print(f"- 95% VaR: {historical_var_95_1d:.2%}")
+    print(f"- 99% VaR: {historical_var_99_1d:.2%}")
+
+    print("\nHistorical Expected Shortfall:")
+    print(f"- 95% ES: {historical_es_95_1d:.2%}")
+    print(f"- 99% ES: {historical_es_99_1d:.2%}")
+
+    print("\nDrawdown series:")
+    print(
+        drawdown
+        .head()
+        .map(lambda x: f"{x:.2%}")
+    )
+    print("\nPortfolio Drawdown:")
+    print(f"- Maximum drawdown: {maximum_drawdown:.2%}")
+
+
 
 if __name__ == "__main__":
     main()
