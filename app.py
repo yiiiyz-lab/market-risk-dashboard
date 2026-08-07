@@ -443,7 +443,7 @@ def main():
 
     st.markdown(
         """
-    ### The dashboard calculates market risk using historical daily portfolio returns and a fixed asset allocation.
+    The dashboard calculates market risk using historical daily portfolio returns and a fixed asset allocation.
 
     ### Portfolio Construction
 
