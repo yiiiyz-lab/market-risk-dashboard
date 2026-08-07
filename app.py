@@ -34,6 +34,19 @@ from src.risk.drawdown import (
     calculate_maximum_drawdown,
 )
 
+from src.risk.limits import (
+    DRAWDOWN_LIMIT,
+    VAR_95_LIMIT,
+    VOLATILITY_LIMIT,
+    evaluate_risk_limit,
+)
+
+from src.reporting.console_report import (
+    print_risk_limit_summary,
+    print_risk_summary,
+    print_rolling_volatility_summary,
+)
+
 def main():
 
     tickers = get_default_tickers()
@@ -90,34 +103,43 @@ def main():
     drawdown = calculate_drawdown(portfolio_returns)
     maximum_drawdown = calculate_maximum_drawdown(portfolio_returns)
 
-    print("\nPortfolio volatility:")
-    print(f"- Daily volatility: {daily_volatility:.2%}")
-    print(f"- Annualized volatility: {annualized_volatility:.2%}")
-
-    print("\nRolling annualized volatility:")
-    print(rolling_annualized_volatility.dropna().head().map(lambda x: f"{x:.2%}"))
-
-    print("\nRolling annualized volatility (last 5):")
-    print(rolling_annualized_volatility.dropna().tail().map(lambda x: f"{x:.2%}"))
-
-    print("\nHistorical Value at Risk:")
-    print(f"- 95% VaR: {historical_var_95_1d:.2%}")
-    print(f"- 99% VaR: {historical_var_99_1d:.2%}")
-
-    print("\nHistorical Expected Shortfall:")
-    print(f"- 95% ES: {historical_es_95_1d:.2%}")
-    print(f"- 99% ES: {historical_es_99_1d:.2%}")
-
-    print("\nDrawdown series:")
-    print(
-        drawdown
-        .head()
-        .map(lambda x: f"{x:.2%}")
+    volatility_status = evaluate_risk_limit(
+        annualized_volatility,
+        VOLATILITY_LIMIT,
     )
-    print("\nPortfolio Drawdown:")
-    print(f"- Maximum drawdown: {maximum_drawdown:.2%}")
 
+    var_status = evaluate_risk_limit(
+        historical_var_95_1d,
+        VAR_95_LIMIT,
+    )
 
+    drawdown_status = evaluate_risk_limit(
+        maximum_drawdown,
+        DRAWDOWN_LIMIT,
+    )
+
+    print_risk_summary(
+        daily_volatility=daily_volatility,
+        annualized_volatility=annualized_volatility,
+        historical_var_95_1d=historical_var_95_1d,
+        historical_var_99_1d=historical_var_99_1d,
+        historical_es_95_1d=historical_es_95_1d,
+        historical_es_99_1d=historical_es_99_1d,
+        maximum_drawdown=maximum_drawdown,
+    )
+
+    print_rolling_volatility_summary(
+        rolling_annualized_volatility,
+    )
+
+    print_risk_limit_summary(
+        annualized_volatility=annualized_volatility,
+        volatility_status=volatility_status,
+        historical_var_95_1d=historical_var_95_1d,
+        var_status=var_status,
+        maximum_drawdown=maximum_drawdown,
+        drawdown_status=drawdown_status,
+    )
 
 if __name__ == "__main__":
     main()
