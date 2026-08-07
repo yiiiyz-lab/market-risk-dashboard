@@ -4,6 +4,8 @@ Market Risk Dashboard
 Entry point of the application.
 """
 
+import streamlit as st
+
 from src.data.market_data import (
     calculate_daily_returns,
     get_default_tickers,
@@ -48,6 +50,17 @@ from src.reporting.console_report import (
 )
 
 def main():
+
+    st.set_page_config(
+        page_title="Market Risk Dashboard",
+        page_icon="📊",
+        layout="wide",
+    )
+
+    st.title("Market Risk Dashboard")
+    st.caption(
+        "Daily portfolio risk monitoring using historical market data."
+    )
 
     tickers = get_default_tickers()
 
@@ -116,6 +129,61 @@ def main():
     drawdown_status = evaluate_risk_limit(
         maximum_drawdown,
         DRAWDOWN_LIMIT,
+    )
+
+    st.subheader("Portfolio Risk Summary")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    col1.metric(
+        "Annualized Volatility",
+        f"{annualized_volatility:.2%}",
+    )
+
+    col2.metric(
+        "95% Historical VaR",
+        f"{historical_var_95_1d:.2%}",
+    )
+
+    col3.metric(
+        "95% Expected Shortfall",
+        f"{historical_es_95_1d:.2%}",
+    )
+
+    col4.metric(
+        "Maximum Drawdown",
+        f"{maximum_drawdown:.2%}",
+    )
+
+    st.subheader("Risk Limit Monitoring")
+
+    limit_col1, limit_col2, limit_col3 = st.columns(3)
+
+    limit_col1.metric(
+        "Volatility Status",
+        volatility_status,
+    )
+
+    limit_col2.metric(
+        "VaR Status",
+        var_status,
+    )
+
+    limit_col3.metric(
+        "Drawdown Status",
+        drawdown_status,
+    )
+
+    st.subheader("Rolling Annualized Volatility")
+
+    st.line_chart(
+        rolling_annualized_volatility.dropna()
+    )
+
+    st.subheader("Portfolio Drawdown")
+
+    st.line_chart(
+        drawdown
     )
 
     print_risk_summary(
